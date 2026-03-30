@@ -4,7 +4,6 @@
 
 **Hierarchical Heterogeneous Alignment Network for Lightweight Medical Image Segmentation**
 
-[Paper]() | [Weights]()
 
 </div>
 
@@ -30,7 +29,6 @@
   <img src="images/cka.jpg" width="80%"/>
 </div>
 
-Even in a homogeneous encoder such as UNet, a notable similarity gap exists between shallow stages (S1–S2) and semantic stages (S4–S5). This motivates treating them as functionally separate groups with differentiated processing, rather than adopting a uniform design across all stages. The CKA matrix of our heterogeneous architecture exhibits a clear block-diagonal structure, confirming that differentiated treatment effectively amplifies the inherent functional specialization.
 
 ## Results
 
@@ -39,7 +37,7 @@ Even in a homogeneous encoder such as UNet, a notable similarity gap exists betw
 | Variant | Params | MACs | FPS (A6000) | FPS (Jetson Nano) |
 |:--------|-------:|-----:|------------:|------------------:|
 | HHANet-Tiny | 0.89M | 1.31G | 329 | 33.97 |
-| HHANet-Base | 8.59M | — | — | — |
+| HHANet-Base | 8.59M | 8.59G | 138.00 | 13.39 |
 
 ### Performance Comparison
 
