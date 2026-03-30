@@ -6,7 +6,7 @@
 </div>
 
 <div align="center">
-  <img src="images/ab.jpg" width="100%"/>
+  <img src="image/ab.jpg" width="100%"/>
 </div>
 
 > Targets in medical images exhibit relatively fixed anatomical structures and spatial relationships, providing stable and exploitable structural priors — unlike natural images where targets vary considerably in appearance, scale, and distribution. HHANet exploits this property through representation-aligned computation.
@@ -18,12 +18,12 @@
 - **GCA** — Graph-based Cross-level Alignment that formalizes skip-connection fusion as directed bipartite graph matching, explicitly aligning semantic and spatial features via Top-*k* sparse edges and learned gating.
 
 <div align="center">
-  <img src="images/architecture.jpg" width="100%"/>
+  <img src="image/architecture.jpg" width="100%"/>
 </div>
 
 
 <div align="center">
-  <img src="images/cka.jpg" width="80%"/>
+  <img src="image/cka.jpg" width="80%"/>
 </div>
 
 
@@ -36,16 +36,12 @@
 | HHANet-Tiny | 0.89M | 1.31G | 329 | 33.97 |
 | HHANet-Base | 8.59M | 8.59G | 138.00 | 13.39 |
 
-### Performance Comparison
 
-<div align="center">
-  <img src="images/results.jpg" width="100%"/>
-</div>
 
 ### Visualization
 
 <div align="center">
-  <img src="images/visualization.jpg" width="100%"/>
+  <img src="image/visualization.jpg" width="100%"/>
 </div>
 
 ## Installation
@@ -122,7 +118,7 @@ HHANet/
 ├── dataset.py
 ├── utils.py
 ├── requirements.txt
-└── images/                    # Figures for README
+└── image/                     # Figures for README
 ```
 
 ## Citation
