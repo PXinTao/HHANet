@@ -1,8 +1,6 @@
 <div align="center">
 
-# HHANet
-
-**Hierarchical Heterogeneous Alignment Network for Lightweight Medical Image Segmentation**
+# HHANet: Hierarchical Heterogeneous Alignment Network for Lightweight Medical Image Segmentation
 
 
 </div>
@@ -23,7 +21,6 @@
   <img src="images/architecture.jpg" width="100%"/>
 </div>
 
-## Key Motivation
 
 <div align="center">
   <img src="images/cka.jpg" width="80%"/>
@@ -76,7 +73,7 @@ model = build_hhanet('base', num_classes=4)   # HHANet-Base
 python train.py \
     --variant tiny \
     --dataset_dir /path/to/datasets \
-    --dataset_name ACDC \
+    --dataset_name EchoNet-Dy \
     --num_classes 1 \
     --epochs 300 \
     --batch_size 8 \
