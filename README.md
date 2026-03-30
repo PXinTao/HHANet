@@ -63,8 +63,8 @@ Requirements: `torch>=2.0`, `torchvision>=0.15`, `numpy`, `opencv-python`, `Pill
 ```python
 from hhanet import build_hhanet
 
-model = build_hhanet('tiny', num_classes=4)   # HHANet-Tiny
-model = build_hhanet('base', num_classes=4)   # HHANet-Base
+model = build_hhanet('tiny', num_classes=1)   # HHANet-Tiny
+model = build_hhanet('base', num_classes=1)   # HHANet-Base
 ```
 
 ## Training
