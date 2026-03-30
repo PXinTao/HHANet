@@ -78,7 +78,7 @@ python train.py \
     --epochs 300 \
     --batch_size 8 \
     --lr 1e-3 \
-    --save_dir ./checkpoints/ACDC_tiny
+    --save_dir ./checkpoints/EchoNet—Dy_tiny
 ```
 
 ### Supported Datasets
