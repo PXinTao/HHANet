@@ -56,7 +56,7 @@ Even in a homogeneous encoder such as UNet, a notable similarity gap exists betw
 ## Installation
 
 ```bash
-git clone https://github.com/<your-username>/HHANet.git
+git clone https://github.com/PXinTao/HHANet.git
 cd HHANet
 pip install -r requirements.txt
 ```
