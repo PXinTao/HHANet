@@ -1,137 +1,70 @@
-<div align="center">
+# HHANet
 
-# HHANet: Hierarchical Heterogeneous Alignment Network for Lightweight Medical Image Segmentation
+PyTorch implementation of HHANet for medical image segmentation, including Tiny and Base models.
 
-
-</div>
-
-<div align="center">
-  <img src="image/ab.jpg" width="100%"/>
-</div>
-
-> Targets in medical images exhibit relatively fixed anatomical structures and spatial relationships, providing stable and exploitable structural priors — unlike natural images where targets vary considerably in appearance, scale, and distribution. HHANet exploits this property through representation-aligned computation.
-
-## Highlights
-
-- **CPADConv** — Content–Position Aware Dynamic Convolution that unifies a population-level anatomical prior with an instance-level deformation field in a single operator, enabling dual content–position awareness without additional inference overhead.
-- **HM-MLP** — Hierarchically Modulated MLP for linear-complexity global semantic aggregation with cross-stage FiLM calibration, preventing representation collapse in deep stages.
-- **GCA** — Graph-based Cross-level Alignment that formalizes skip-connection fusion as directed bipartite graph matching, explicitly aligning semantic and spatial features via Top-*k* sparse edges and learned gating.
-
-<div align="center">
-  <img src="image/architecture.jpg" width="100%"/>
-</div>
-
-
-<div align="center">
-  <img src="image/cka.jpg" width="80%"/>
-</div>
-
-
-## Results
-
-### Model Variants
-
-| Variant | Params | MACs | FPS (A6000) | FPS (Jetson Nano) |
-|:--------|-------:|-----:|------------:|------------------:|
-| HHANet-Tiny | 0.89M | 1.31G | 329 | 33.97 |
-| HHANet-Base | 8.59M | 8.59G | 138.00 | 13.39 |
-
-
-
-### Visualization
-
-<div align="center">
-  <img src="image/visualization.jpg" width="100%"/>
-</div>
+![Architecture](image/architecture.jpg)
 
 ## Installation
 
+Python 3.10 is recommended. Install a PyTorch build suitable for your CUDA environment, then:
+
 ```bash
-git clone https://github.com/PXinTao/HHANet.git
-cd HHANet
 pip install -r requirements.txt
 ```
 
-Requirements: `torch>=2.0`, `torchvision>=0.15`, `numpy`, `opencv-python`, `Pillow`, `albumentations>=1.3`, `tqdm`, `scikit-learn`
-
-## Quick Start
+## Model
 
 ```python
 from hhanet import build_hhanet
 
-model = build_hhanet('tiny', num_classes=1)   # HHANet-Tiny
-model = build_hhanet('base', num_classes=1)   # HHANet-Base
+model = build_hhanet("tiny", num_classes=1)
+model = build_hhanet("base", num_classes=4)
 ```
+
+The complete model uses CPADConv, HM-MLP, and GCA. At 256 × 256, Tiny has approximately 0.89M parameters and 1.41G MACs; Base has approximately 8.59M parameters and 6.50G MACs.
 
 ## Training
 
+The included training entry supports binary image segmentation. Prepare RGB images and binary masks (0 for background, 255 for foreground):
+
+```text
+data/MyDataset/
+├── train/
+│   ├── imgs/
+│   └── masks/
+├── val/
+│   ├── imgs/
+│   └── masks/
+└── test/
+    ├── imgs/
+    └── masks/
+```
+
+Use matching filenames with `.png` extensions. Training, validation, and test splits must be prepared before running:
+
 ```bash
-python train.py \
-    --variant tiny \
-    --dataset_dir /path/to/datasets \
-    --dataset_name EchoNet-Dy \
-    --num_classes 1 \
-    --epochs 300 \
-    --batch_size 8 \
-    --lr 1e-3 \
-    --save_dir ./checkpoints/EchoNet—Dy_tiny
+python train.py --variant tiny --dataset_dir ./data --dataset_name MyDataset \
+    --num_classes 1 --epochs 300 --batch_size 8 --lr 1e-3 \
+    --save_dir ./checkpoints/MyDataset_tiny
 ```
 
-### Supported Datasets
+Replace `tiny` with `base` for the Base model. The entry uses AdamW, BCE + Dice loss, cosine learning-rate decay, and the augmentation defined in `dataset.py`. It validates after each epoch and evaluates the best validation-Dice checkpoint on the test split. This generic image entry does not implement the volume evaluation used for ACDC or Synapse.
 
-ACDC, EchoNet-Dynamic, Fetal_HC, Synapse, FIVES, Kvasir-SEG, TN3K, CVC-ClinicDB, and any custom dataset following this layout:
+## Checkpoints
 
-```
-<dataset_dir>/<dataset_name>/<split>/imgs/*.png
-<dataset_dir>/<dataset_name>/<split>/masks/*.png
-```
+Models are randomly initialized unless a checkpoint is provided. Weights are not bundled. To resume a checkpoint produced by this entry, add `--resume ./checkpoints/MyDataset_tiny/latest.pth`.
 
-### Training Details
+Existing HappyNet-format weights can be loaded with explicit key conversion:
 
-| Setting | Value |
-|:--------|:------|
-| Loss | BCE + Dice |
-| Optimizer | AdamW |
-| LR Schedule | CosineAnnealingLR |
-| Augmentation | Rotation, flip, brightness, blur, noise, elastic (albumentations) |
-| Input Resolution | 256 × 256 |
-| Metrics | Dice, mIoU |
-
-## Project Structure
-
-```
-HHANet/
-├── hhanet/
-│   ├── models/
-│   │   ├── hhanet.py          # Full model (encoder + decoder)
-│   │   ├── encoder.py         # HHAEncoder
-│   │   └── build.py           # Config & build_hhanet()
-│   ├── layers/
-│   │   ├── cpadconv.py        # CPADConv
-│   │   ├── gca.py             # Graph Cross-level Alignment
-│   │   ├── hm_mlp.py          # Hierarchically Modulated MLP
-│   │   ├── tok_mlp.py         # Shifted MLP & Patch Embedding
-│   │   └── blocks.py          # DWConv & UpBlock
-│   └── utils/
-│       └── factor.py
-├── train.py
-├── dataset.py
-├── utils.py
-├── requirements.txt
-└── image/                     # Figures for README
+```python
+model = build_hhanet(
+    "base", num_classes=4,
+    pretrained="./weights/model.pth", legacy_ckpt=True,
+)
 ```
 
-## Citation
-
-```bibtex
-@article{hhanet2025,
-  title={HHANet: Hierarchical Heterogeneous Alignment Network for Lightweight Medical Image Segmentation},
-  author={},
-  journal={},
-  year={2025}
-}
-```
+The variant, class count, and positional-prior reference size must match the checkpoint. Loading checks all parameter keys and shapes.
 
 ## License
 
-This project is released under the [MIT License](LICENSE).
+MIT; see [LICENSE](LICENSE). Third-party notices, where applicable, are retained in [NOTICE](NOTICE).

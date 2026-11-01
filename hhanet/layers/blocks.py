@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from __future__ import annotations
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -36,11 +33,15 @@ class UpBlock(nn.Module):
         self.conv2 = nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_ch)
 
-    def forward(self, x: torch.Tensor, skip: torch.Tensor | None = None, scale: int = 2) -> torch.Tensor:
-        x = F.interpolate(x, scale_factor=scale, mode='bilinear', align_corners=False)
+    def forward(
+        self, x: torch.Tensor, skip: torch.Tensor | None = None, scale: int = 2
+    ) -> torch.Tensor:
+        x = F.interpolate(x, scale_factor=scale, mode="bilinear", align_corners=False)
         if skip is not None:
             if x.shape[-2:] != skip.shape[-2:]:
-                skip = F.interpolate(skip, size=x.shape[-2:], mode='bilinear', align_corners=False)
+                skip = F.interpolate(
+                    skip, size=x.shape[-2:], mode="bilinear", align_corners=False
+                )
             x = torch.cat([x, skip], dim=1)
         x = self.act(self.bn1(self.conv1(x)))
         x = self.act(self.bn2(self.conv2(x)))

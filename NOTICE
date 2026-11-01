@@ -1,0 +1,8 @@
+HHANet retains its original PyTorch implementation and model parameter names.
+
+The shifted MLP design is related to UNeXt (Valanarasu and Patel, MICCAI 2022):
+https://github.com/jeya-maria-jose/UNeXt-pytorch
+The upstream license is preserved in licenses/UNeXt.txt.
+
+Training uses PyTorch, torchvision, Albumentations, OpenCV, NumPy, Pillow,
+scikit-learn, and tqdm. These dependencies retain their respective licenses.

@@ -1,6 +1,9 @@
 __pycache__/
-*.pyc
+*.py[cod]
 *.pth
 *.pt
 checkpoints/
+data/
+logs/
+*.log
 .DS_Store

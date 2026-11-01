@@ -15,10 +15,10 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 
-
 # ---------------------------------------------------------------------------
 # General helpers
 # ---------------------------------------------------------------------------
+
 
 def str2bool(v: str) -> bool:
     if v.lower() in ("true", "1"):
@@ -47,13 +47,16 @@ def set_seed(seed: int) -> None:
 # Logging
 # ---------------------------------------------------------------------------
 
+
 def get_logger(name: str, log_dir: str) -> logging.Logger:
     os.makedirs(log_dir, exist_ok=True)
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     info_name = os.path.join(log_dir, f"{name}.info.log")
     handler = logging.handlers.TimedRotatingFileHandler(
-        info_name, when="D", encoding="utf-8",
+        info_name,
+        when="D",
+        encoding="utf-8",
     )
     handler.setLevel(logging.INFO)
     handler.setFormatter(
@@ -66,6 +69,7 @@ def get_logger(name: str, log_dir: str) -> logging.Logger:
 # ---------------------------------------------------------------------------
 # AverageMeter
 # ---------------------------------------------------------------------------
+
 
 class AverageMeter:
     """Computes and stores the average and current value."""
@@ -89,6 +93,7 @@ class AverageMeter:
 # ---------------------------------------------------------------------------
 # Metric tracker (best-so-far)
 # ---------------------------------------------------------------------------
+
 
 class MetricTracker:
     """Track best metric value across epochs.
@@ -122,6 +127,7 @@ class MetricTracker:
 # ---------------------------------------------------------------------------
 # Loss functions
 # ---------------------------------------------------------------------------
+
 
 class BCELoss(nn.Module):
     def __init__(self) -> None:
@@ -164,6 +170,7 @@ class BceDiceLoss(nn.Module):
 # Evaluation metrics
 # ---------------------------------------------------------------------------
 
+
 @torch.no_grad()
 def iou_score(output: torch.Tensor, target: torch.Tensor) -> float:
     smooth = 1e-5
@@ -184,6 +191,4 @@ def dice_coef(output: torch.Tensor, target: torch.Tensor) -> float:
     output = torch.sigmoid(output).view(-1).data.cpu().numpy()
     target = target.view(-1).data.cpu().numpy()
     intersection = (output * target).sum()
-    return float(
-        (2.0 * intersection + smooth) / (output.sum() + target.sum() + smooth)
-    )
+    return float((2.0 * intersection + smooth) / (output.sum() + target.sum() + smooth))

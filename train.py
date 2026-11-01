@@ -27,22 +27,30 @@ from utils import (
     set_seed,
 )
 
-
 # ---------------------------------------------------------------------------
 # Argument parser
 # ---------------------------------------------------------------------------
 
+
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Train HHANet for medical image segmentation")
+    p = argparse.ArgumentParser(
+        description="Train HHANet for medical image segmentation"
+    )
     # model
     p.add_argument("--variant", type=str, default="tiny", choices=["tiny", "base"])
     p.add_argument("--num_classes", type=int, default=1)
     p.add_argument("--in_ch", type=int, default=3)
     p.add_argument("--img_size", type=int, default=256)
     # data
-    p.add_argument("--dataset_dir", type=str, required=True, help="Root directory of datasets")
-    p.add_argument("--dataset_name", type=str, required=True,
-                    help="Dataset name (ACDC, EchoNet-Dynamic, Fetal_HC, Synapse, FIVES, Kvasir-SEG, tn3k, etc.)")
+    p.add_argument(
+        "--dataset_dir", type=str, required=True, help="Root directory of datasets"
+    )
+    p.add_argument(
+        "--dataset_name",
+        type=str,
+        required=True,
+        help="Name of a binary segmentation dataset",
+    )
     # training
     p.add_argument("--epochs", type=int, default=300)
     p.add_argument("--batch_size", type=int, default=8)
@@ -53,15 +61,24 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--seed", type=int, default=42)
     # checkpoint
     p.add_argument("--save_dir", type=str, default="./checkpoints")
-    p.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume from")
-    p.add_argument("--pretrained", type=str, default=None, help="Path to pretrained weights")
-    p.add_argument("--legacy_ckpt", action="store_true", help="Remap old HappyNet keys when loading pretrained")
+    p.add_argument(
+        "--resume", type=str, default=None, help="Path to checkpoint to resume from"
+    )
+    p.add_argument(
+        "--pretrained", type=str, default=None, help="Path to pretrained weights"
+    )
+    p.add_argument(
+        "--legacy_ckpt",
+        action="store_true",
+        help="Remap old HappyNet keys when loading pretrained",
+    )
     return p.parse_args()
 
 
 # ---------------------------------------------------------------------------
 # Train / Validate / Test
 # ---------------------------------------------------------------------------
+
 
 def train_one_epoch(
     model: nn.Module,
@@ -123,8 +140,11 @@ def evaluate(
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main() -> None:
     args = parse_args()
+    if args.num_classes != 1:
+        raise ValueError("train.py implements binary segmentation; use num_classes=1")
     set_seed(args.seed)
 
     # directories
@@ -137,24 +157,43 @@ def main() -> None:
 
     # ---- data ----
     train_dataset = SegmentationDataset(
-        args.dataset_dir, args.dataset_name, split="train",
-        image_size=args.img_size, transform=get_train_transform(args.img_size),
+        args.dataset_dir,
+        args.dataset_name,
+        split="train",
+        image_size=args.img_size,
+        transform=get_train_transform(args.img_size),
     )
     val_dataset = SegmentationDataset(
-        args.dataset_dir, args.dataset_name, split="val", image_size=args.img_size,
+        args.dataset_dir,
+        args.dataset_name,
+        split="val",
+        image_size=args.img_size,
     )
     test_dataset = SegmentationDataset(
-        args.dataset_dir, args.dataset_name, split="test", image_size=args.img_size,
+        args.dataset_dir,
+        args.dataset_name,
+        split="test",
+        image_size=args.img_size,
     )
 
     train_loader = DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=True,
-        num_workers=args.num_workers, pin_memory=True, drop_last=True,
+        train_dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        num_workers=args.num_workers,
+        pin_memory=True,
+        drop_last=True,
     )
-    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True)
+    val_loader = DataLoader(
+        val_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True
+    )
+    test_loader = DataLoader(
+        test_dataset, batch_size=1, shuffle=False, num_workers=1, pin_memory=True
+    )
 
-    logger.info(f"Dataset: {args.dataset_name} | train={len(train_dataset)} val={len(val_dataset)} test={len(test_dataset)}")
+    logger.info(
+        f"Dataset: {args.dataset_name} | train={len(train_dataset)} val={len(val_dataset)} test={len(test_dataset)}"
+    )
 
     # ---- model ----
     model = build_hhanet(
@@ -166,12 +205,18 @@ def main() -> None:
         img_size=args.img_size,
     )
     model = model.to(device)
-    logger.info(f"HHANet-{args.variant.capitalize()} | params: {count_params(model) / 1e6:.2f}M")
+    logger.info(
+        f"HHANet-{args.variant.capitalize()} | params: {count_params(model) / 1e6:.2f}M"
+    )
 
     # ---- loss / optimizer / scheduler ----
     criterion = BceDiceLoss()
-    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=args.min_lr)
+    optimizer = optim.AdamW(
+        model.parameters(), lr=args.lr, weight_decay=args.weight_decay
+    )
+    scheduler = optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, T_max=args.epochs, eta_min=args.min_lr
+    )
 
     # ---- resume ----
     start_epoch = 1
@@ -195,7 +240,9 @@ def main() -> None:
     for epoch in range(start_epoch, args.epochs + 1):
         torch.cuda.empty_cache()
 
-        train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch)
+        train_loss = train_one_epoch(
+            model, train_loader, criterion, optimizer, device, epoch
+        )
         metrics = evaluate(model, val_loader, criterion, device, epoch, phase="Val")
         scheduler.step()
 
@@ -236,7 +283,9 @@ def main() -> None:
     if os.path.isfile(best_path):
         ckpt = torch.load(best_path, map_location="cpu")
         model.load_state_dict(ckpt["model_state_dict"])
-        test_metrics = evaluate(model, test_loader, criterion, device, epoch=ckpt["epoch"], phase="Test")
+        test_metrics = evaluate(
+            model, test_loader, criterion, device, epoch=ckpt["epoch"], phase="Test"
+        )
         logger.info(
             f"Test (best_dice @ epoch {ckpt['epoch']}) | "
             f"loss={test_metrics['loss']:.4f} | dice={test_metrics['dice']:.4f} | miou={test_metrics['miou']:.4f}"

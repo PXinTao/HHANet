@@ -15,38 +15,43 @@ from albumentations.pytorch import ToTensorV2
 
 from torch.utils.data import Dataset, DataLoader
 
-
 # ---------------------------------------------------------------------------
 # Default augmentation pipelines
 # ---------------------------------------------------------------------------
 
+
 def get_train_transform(image_size: int = 256) -> Compose:
-    return Compose([
-        albu.Rotate(limit=(-15, 15), p=0.5),
-        albu.RandomRotate90(p=0.5),
-        albu.Flip(p=0.5),
-        albu.HueSaturationValue(p=0.1),
-        albu.RandomBrightnessContrast(p=0.1),
-        albu.GaussianBlur(p=0.1),
-        albu.GaussNoise(p=0.1),
-        albu.ElasticTransform(p=0.1),
-        albu.Resize(image_size, image_size),
-        albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-        ToTensorV2(),
-    ])
+    return Compose(
+        [
+            albu.Rotate(limit=(-15, 15), p=0.5),
+            albu.RandomRotate90(p=0.5),
+            albu.Flip(p=0.5),
+            albu.HueSaturationValue(p=0.1),
+            albu.RandomBrightnessContrast(p=0.1),
+            albu.GaussianBlur(p=0.1),
+            albu.GaussNoise(p=0.1),
+            albu.ElasticTransform(p=0.1),
+            albu.Resize(image_size, image_size),
+            albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            ToTensorV2(),
+        ]
+    )
 
 
 def get_val_transform(image_size: int = 256) -> Compose:
-    return Compose([
-        albu.Resize(image_size, image_size),
-        albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
-        ToTensorV2(),
-    ])
+    return Compose(
+        [
+            albu.Resize(image_size, image_size),
+            albu.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            ToTensorV2(),
+        ]
+    )
 
 
 # ---------------------------------------------------------------------------
 # SegmentationDataset
 # ---------------------------------------------------------------------------
+
 
 class SegmentationDataset(Dataset):
     """Generic medical image segmentation dataset.
@@ -118,6 +123,7 @@ class SegmentationDataset(Dataset):
 # DataLoader factory
 # ---------------------------------------------------------------------------
 
+
 def create_dataloader(
     dataset_dir: str,
     dataset_name: str,
@@ -128,8 +134,11 @@ def create_dataloader(
     transform: Compose | None = None,
 ) -> DataLoader:
     dataset = SegmentationDataset(
-        dataset_dir, dataset_name, split=split,
-        image_size=image_size, transform=transform,
+        dataset_dir,
+        dataset_name,
+        split=split,
+        image_size=image_size,
+        transform=transform,
     )
     return DataLoader(
         dataset,

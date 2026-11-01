@@ -4,4 +4,4 @@ Main entry:
     from hhanet.models import build_hhanet
 """
 
-from .models.build import build_hhanet  # noqa: F401
+from .models.build import build_hhanet
